@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="STORM EAGLE - Telegram NFT Giveaway. Do'stlaringizni taklif qiling va eksklyuziv NFT sovg'alariga ega bo'ling!">
+    <meta name="keywords" content="storm eagle, telegram, nft, giveaway, sovg'a, bot">
+    <meta property="og:title" content="STORM EAGLE - NFT Giveaway">
+    <meta property="og:description"
+        content="Do'stlaringizni taklif qiling va eksklyuziv Telegram NFT sovg'alariga ega bo'ling!">
+    <meta property="og:image" content="/static/images/eagle.jpg">
+    <meta property="og:type" content="website">
+    <title>STORM EAGLE - NFT Giveaway</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --primary-glow: rgba(6, 182, 212, 0.5);
+            --bg-dark: #030712;
+            --bg-card: rgba(15, 23, 42, 0.8);
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Canvas Storm Background */
+        #stormCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        /* Lightning Flash */
+        #flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+            transition: opacity 0.1s;
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 2rem;
+            max-width: 1200px;
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                flex-direction: row;
+                text-align: left;
+                gap: 4rem;
+            }
+        }
+
+        /* Character Section */
+        .character-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        @media (min-width: 768px) {
+            .character-wrapper {
+                width: 400px;
+                height: 400px;
+            }
+        }
+
+        /* Character Glow */
+        .character-glow {
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+            filter: blur(40px);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Character Image */
+        .character-img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px var(--primary-glow)) drop-shadow(0 0 80px rgba(6, 182, 212, 0.3));
+            z-index: 2;
+            border-radius: 20px;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-15px) rotate(2deg);
+            }
+
+            75% {
+                transform: translateY(-10px) rotate(-2deg);
+            }
+        }
+
+        /* Lightning Bolts around character */
+        .lightning-bolt {
+            position: absolute;
+            width: 3px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--primary), transparent);
+            opacity: 0;
+            animation: lightning-flash 4s infinite;
+            filter: blur(1px);
+            z-index: 1;
+        }
+
+        .lightning-bolt:nth-child(1) {
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+            transform: rotate(-30deg);
+        }
+
+        .lightning-bolt:nth-child(2) {
+            top: 20%;
+            right: -10%;
+            animation-delay: 1.5s;
+            transform: rotate(30deg);
+        }
+
+        .lightning-bolt:nth-child(3) {
+            bottom: 20%;
+            left: -5%;
+            animation-delay: 3s;
+            transform: rotate(-20deg);
+        }
+
+        @keyframes lightning-flash {
+
+            0%,
+            90%,
+            100% {
+                opacity: 0;
+            }
+
+            92%,
+            94%,
+            96% {
+                opacity: 1;
+            }
+
+            93%,
+            95% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Particle Effects */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: particle-float 8s infinite linear;
+            opacity: 0.6;
+        }
+
+        .particle:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            top: 30%;
+            left: 80%;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(3) {
+            top: 60%;
+            left: 10%;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(4) {
+            top: 80%;
+            left: 60%;
+            animation-delay: 6s;
+        }
+
+        .particle:nth-child(5) {
+            top: 40%;
+            left: 40%;
+            animation-delay: 1s;
+        }
+
+        @keyframes particle-float {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: translateY(-100px) translateX(30px);
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.2;
+            }
+        }
+
+        /* Content Section */
+        .content {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 50px;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge span {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        /* Heading */
+        .heading {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 50%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px var(--primary-glow);
+        }
+
+        @media (min-width: 768px) {
+            .heading {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* Description */
+        .description {
+            font-size: 1.125rem;
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .description strong {
+            color: var(--primary);
+        }
+
+        /* CTA Button */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px var(--primary-glow);
+        }
+
+        .cta-btn:hover::before {
+            left: 100%;
+        }
+
+        .cta-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s;
+        }
+
+        .cta-btn:hover svg {
+            transform: translateX(5px);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .stat {
+                text-align: left;
+            }
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            color: #475569;
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Prize Info */
+        .prize-info {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .prize-info span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Prizes Section */
+        .prizes-section {
+            position: relative;
+            z-index: 10;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .prizes-container {
+            text-align: center;
+        }
+
+        .prizes-title {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .prizes-subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        /* TOP 10 Grid */
+        .prizes-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .prizes-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .prizes-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Prize Card */
+        .prize-card {
+            position: relative;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 12px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .prize-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .prize-card .rank {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 0 2px 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .prize-card .lottie-container {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .prize-card .lottie-container svg {
+            border-radius: 8px;
+        }
+
+        .prize-card .prize-name {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Carousel */
+        .prizes-carousel {
+            overflow: hidden;
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .carousel-track {
+            display: flex;
+            gap: 1rem;
+            animation: scroll-carousel 30s linear infinite;
+        }
+
+        .carousel-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-carousel {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .carousel-card {
+            flex-shrink: 0;
+            width: 100px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            border-radius: 10px;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px var(--primary-glow);
+        }
+
+        .carousel-card .lottie-container {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .carousel-card .lottie-container svg {
+            border-radius: 6px;
+        }
+
+        .carousel-card .prize-name {
+            margin-top: 0.25rem;
+            font-size: 0.6rem;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(6, 182, 212, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .modal-content {
+            padding: 1.5rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        /* Users List */
+        .users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(6, 182, 212, 0.05);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .user-item:hover {
+            border-color: var(--primary);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .user-item.winner {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .user-rank {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .user-rank.top {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            box-shadow: 0 2px 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .user-rank.normal {
+            background: rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(6, 182, 212, 0.3);
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-username {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .user-stats {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .user-referrals {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        .user-prize {
+            font-size: 0.7rem;
+            color: #fbbf24;
+        }
+
+        .user-prize a {
+            color: #fbbf24;
+            text-decoration: none;
+        }
+
+        .user-prize a:hover {
+            text-decoration: underline;
+        }
+
+        /* Prizes List in Modal */
+        .prizes-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .prizes-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .prize-list-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(6, 182, 212, 0.05);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .prize-list-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .prize-list-item .lottie-mini {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .prize-list-item .prize-info {
+            flex: 1;
+        }
+
+        .prize-list-item .prize-title {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .prize-list-item .prize-link {
+            font-size: 0.75rem;
+            color: var(--primary);
+        }
+
+        /* Open Modal Buttons */
+        .modal-trigger {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-trigger:hover {
+            transform: scale(1.02);
+        }
+
+        /* Section Divider */
+        .section-divider {
+            margin: 1.5rem 0;
+            padding: 0.75rem;
+            background: rgba(100, 116, 139, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Storm Canvas -->
+    <canvas id="stormCanvas"></canvas>
+
+    <!-- Lightning Flash Overlay -->
+    <div id="flash"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span class="logo-text">STORM EAGLE</span>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <!-- Character -->
+            <div class="character-wrapper">
+                <div class="character-glow"></div>
+                <div class="lightning-bolt"></div>
+                <div class="lightning-bolt"></div>
+                <div class="lightning-bolt"></div>
+                <div class="particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+                <img src="/static/images/eagle.png" alt="Storm Eagle" class="character-img">
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="badge">
+                    <span>🎁 Telegram NFT Giveaway</span>
+                </div>
+
+                <h1 class="heading">DO'STLARNI CHAQIRING</h1>
+
+                <p class="description">
+                    <strong>STORM EAGLE</strong> botiga qo'shiling va do'stlaringizni taklif qiling.
+                    Eng faol ishtirokchilar eksklyuziv Telegram NFT sovg'alariga ega bo'lishadi.
+                </p>
+
+                <a href="https://t.me/stormeagle_bot" target="_blank" rel="noopener noreferrer" class="cta-btn"
+                    id="ctaButton">
+                    <span>BOTGA KIRISH</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="participantCount">---</div>
+                        <div class="stat-label">Ishtirokchi</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="prizeCount">30</div>
+                        <div class="stat-label">NFT Sovg'a</div>
+                    </div>
+                </div>
+                <div class="prize-info">
+                    <span>🏆 TOP 10 o'rin uchun + 🎲 20 ta RANDOM sovg'a</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prizes Section -->
+    <section class="prizes-section" id="prizes">
+        <div class="prizes-container">
+            <h2 class="prizes-title font-orbitron">🏆 TOP 10 SOVG'ALAR</h2>
+            <p class="prizes-subtitle">Eng ko'p do'st taklif qilganlar uchun maxsus NFT sovg'alar</p>
+
+            <div class="prizes-grid" id="topPrizesGrid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="prizes-container" style="margin-top: 3rem;">
+            <h2 class="prizes-title font-orbitron modal-trigger" onclick="openUsersModal()">👤 TOP 20 ISHTIROKCHILAR
+            </h2>
+            <p class="prizes-subtitle">Bosing va to'liq ro'yxatni ko'ring</p>
+
+            <div class="prizes-carousel" id="randomPrizesCarousel">
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Users Leaderboard Modal -->
+    <div class="modal-overlay" id="usersModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">👤 TOP 20 ISHTIROKCHILAR</h3>
+                <button class="modal-close" onclick="closeUsersModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="users-list" id="usersList">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        &copy; 2024 STORM EAGLE. Barcha huquqlar himoyalangan.
+    </footer>
+
+    <!-- Lottie Player Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+    <script>
+        // Storm Canvas Effect
+        const canvas = document.getElementById('stormCanvas');
+        const ctx = canvas.getContext('2d');
+        const flash = document.getElementById('flash');
+
+        let width, height;
+        const particles = [];
+        const particleCount = 80;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class RainDrop {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.speed = Math.random() * 12 + 8;
+                this.length = Math.random() * 25 + 10;
+                this.opacity = Math.random() * 0.4 + 0.1;
+            }
+
+            update() {
+                this.y += this.speed;
+                this.x += 1; // Slight wind effect
+                if (this.y > height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(6, 182, 212, ${this.opacity})`;
+                ctx.lineWidth = 1;
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + 2, this.y + this.length);
+                ctx.stroke();
+            }
+        }
+
+        // Initialize rain drops
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new RainDrop());
+        }
+
+        // Lightning effect
+        function triggerLightning() {
+            if (Math.random() > 0.995) {
+                flash.style.opacity = Math.random() * 0.2 + 0.1;
+                setTimeout(() => {
+                    flash.style.opacity = 0;
+                }, 50 + Math.random() * 100);
+
+                // Double flash sometimes
+                if (Math.random() > 0.5) {
+                    setTimeout(() => {
+                        flash.style.opacity = Math.random() * 0.15;
+                        setTimeout(() => {
+                            flash.style.opacity = 0;
+                        }, 30);
+                    }, 100);
+                }
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            triggerLightning();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Real-time Stats Fetcher
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                const participantEl = document.getElementById('participantCount');
+                const prizeEl = document.getElementById('prizeCount');
+
+                if (data.participants !== undefined) {
+                    // Animate number change
+                    const current = parseInt(participantEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                    const target = data.participants;
+                    animateNumber(participantEl, current, target);
+                }
+
+                if (data.total_prizes !== undefined) {
+                    prizeEl.textContent = data.total_prizes;
+                }
+            } catch (error) {
+                console.log('Stats fetch error:', error);
+            }
+        }
+
+        // Animated number counter
+        function animateNumber(element, from, to) {
+            const duration = 1000;
+            const start = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - start;
+                const progress = Math.min(elapsed / duration, 1);
+
+                const current = Math.floor(from + (to - from) * easeOutQuart(progress));
+                element.textContent = current.toLocaleString();
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function easeOutQuart(x) {
+            return 1 - Math.pow(1 - x, 4);
+        }
+
+        // Fetch stats on load and every 10 seconds
+        fetchStats();
+        setInterval(fetchStats, 10000);
+
+        // NFT Animation Data
+        const TOP_10_GIFTS = [
+            { name: "MightyArm-2995", file: "MightyArm-2995.json" },
+            { name: "BondedRing-2469", file: "BondedRing-2469.json" },
+            { name: "SignetRing-3380", file: "SignetRing-3380.json" },
+            { name: "BlingBinky-255", file: "BlingBinky-255.json" },
+            { name: "BlingBinky-8795", file: "BlingBinky-255.json" },
+            { name: "CupidCharm-2042", file: "CupidCharm-2042.json" },
+            { name: "IceCream-227191", file: "IceCream-227191.json" },
+            { name: "TopHat-9438", file: "TopHat-9438.json" },
+            { name: "RecordPlayer-1348", file: "RecordPlayer-1348.json" },
+            { name: "RestlessJar-4793", file: "RestlessJar-4793.json" }
+        ];
+
+        const RANDOM_20_UNIQUE = [
+            { name: "FaithAmulet", file: "FaithAmulet-55884.json" },
+            { name: "IceCream", file: "IceCream-227191.json" },
+            { name: "SnakeBox", file: "SnakeBox-9017.json" },
+            { name: "DeskCalendar", file: "DeskCalendar-44858.json" },
+            { name: "HomemadeCake", file: "HomemadeCake-1505.json" },
+            { name: "BDayCandle", file: "BDayCandle-230064.json" }
+        ];
+
+        // Store animation instances
+        const animationInstances = new Map();
+
+        // Create prize card
+        function createPrizeCard(gift, rank = null, isCarousel = false) {
+            const card = document.createElement('div');
+            card.className = isCarousel ? 'carousel-card' : 'prize-card';
+            card.onclick = () => window.open(`https://t.me/nft/${gift.name}`, '_blank');
+
+            const lottieId = `lottie-${gift.name.replace(/[^a-zA-Z0-9]/g, '')}${rank || Math.random().toString(36).substr(2, 5)}`;
+
+            card.innerHTML = `
+                ${rank ? `<div class="rank">${rank}</div>` : ''}
+                <div class="lottie-container" id="${lottieId}"></div>
+                <div class="prize-name">${gift.name.split('-')[0]}</div>
+            `;
+
+            // Store lottieId for hover binding
+            card.dataset.lottieId = lottieId;
+
+            return { card, lottieId, file: gift.file };
+        }
+
+        // Lazy loading with Intersection Observer
+        const loadedAnimations = new Set();
+
+        const lazyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const lottieId = card.dataset.lottieId;
+                    const file = card.dataset.file;
+
+                    if (lottieId && file && !loadedAnimations.has(lottieId)) {
+                        loadedAnimations.add(lottieId);
+                        loadLottie(lottieId, file, card);
+                    }
+                }
+            });
+        }, { rootMargin: '200px' }); // Load 200px before visible
+
+        // Load Lottie animation (SVG for quality and compatibility)
+        function loadLottie(containerId, file, card) {
+            try {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                const anim = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'svg',  // SVG for best quality and compatibility
+                    loop: false,
+                    autoplay: false,
+                    path: `/static/animations/${file}`,
+                    rendererSettings: {
+                        preserveAspectRatio: 'xMidYMid meet',
+                        progressiveLoad: true
+                    }
+                });
+
+                // Store animation instance
+                animationInstances.set(containerId, anim);
+
+                // Go to first frame when loaded
+                anim.addEventListener('DOMLoaded', () => {
+                    anim.goToAndStop(0, true);
+                });
+
+                // Add hover events to card
+                card.addEventListener('mouseenter', () => {
+                    anim.goToAndPlay(0, true);
+                });
+
+            } catch (e) {
+                console.log('Lottie load error:', e);
+            }
+        }
+
+        // Setup prize card for lazy loading
+        function setupLazyCard(card, file) {
+            card.dataset.file = file;
+            lazyObserver.observe(card);
+        }
+
+        // Render TOP 10 prizes
+        function renderTopPrizes() {
+            const grid = document.getElementById('topPrizesGrid');
+            if (!grid) return;
+
+            TOP_10_GIFTS.forEach((gift, index) => {
+                const { card, lottieId, file } = createPrizeCard(gift, index + 1);
+                grid.appendChild(card);
+                setupLazyCard(card, file);
+            });
+        }
+
+        // All 20 RANDOM gifts with their files
+        const ALL_RANDOM_GIFTS = [
+            { name: "FaithAmulet-55884", file: "FaithAmulet-55884.json" },
+            { name: "FaithAmulet-55911", file: "FaithAmulet-55884.json" },
+            { name: "FaithAmulet-56038", file: "FaithAmulet-55884.json" },
+            { name: "IceCream-159536", file: "IceCream-227191.json" },
+            { name: "IceCream-159631", file: "IceCream-227191.json" },
+            { name: "IceCream-159732", file: "IceCream-227191.json" },
+            { name: "SnakeBox-9017", file: "SnakeBox-9017.json" },
+            { name: "DeskCalendar-44858", file: "DeskCalendar-44858.json" },
+            { name: "HomemadeCake-1505", file: "HomemadeCake-1505.json" },
+            { name: "IceCream-159180", file: "IceCream-227191.json" },
+            { name: "IceCream-159284", file: "IceCream-227191.json" },
+            { name: "IceCream-159419", file: "IceCream-227191.json" },
+            { name: "IceCream-158662", file: "IceCream-227191.json" },
+            { name: "IceCream-158559", file: "IceCream-227191.json" },
+            { name: "BDayCandle-230064", file: "BDayCandle-230064.json" },
+            { name: "SnakeBox-8938", file: "SnakeBox-9017.json" },
+            { name: "IceCream-158977", file: "IceCream-227191.json" },
+            { name: "IceCream-158877", file: "IceCream-227191.json" },
+            { name: "IceCream-158788", file: "IceCream-227191.json" },
+            { name: "FaithAmulet-55947", file: "FaithAmulet-55884.json" }
+        ];
+
+        // Render RANDOM carousel with all 20 gifts (duplicated for infinite scroll)
+        function renderRandomPrizes() {
+            const track = document.getElementById('carouselTrack');
+            if (!track) return;
+
+            // Create 3x items for seamless infinite scroll
+            for (let loop = 0; loop < 3; loop++) {
+                ALL_RANDOM_GIFTS.forEach((gift, index) => {
+                    const { card, lottieId, file } = createPrizeCard(gift, null, true);
+                    track.appendChild(card);
+                    // Load all animations (carousel always visible)
+                    setupLazyCard(card, gift.file);
+                });
+            }
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+
+        // Store TOP 20 users data
+        let top20Users = [];
+
+        // Open Users Modal
+        function openUsersModal() {
+            const modal = document.getElementById('usersModal');
+            modal.classList.add('active');
+            renderUsersModal();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeUsersModal() {
+            const modal = document.getElementById('usersModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                    m.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+
+        // Render Users Modal with TOP 20
+        function renderUsersModal() {
+            const usersList = document.getElementById('usersList');
+            if (!usersList) return;
+
+            usersList.innerHTML = '';
+
+            if (top20Users.length === 0) {
+                usersList.innerHTML = '<p style="text-align: center; color: #64748b;">Ma\'lumotlar yuklanmoqda...</p>';
+                return;
+            }
+
+            top20Users.forEach((user, index) => {
+                const rank = index + 1;
+                const isWinner = rank <= 10;
+                const prize = isWinner ? TOP_10_GIFTS[index] : null;
+
+                const item = document.createElement('div');
+                item.className = `user-item ${isWinner ? 'winner' : ''}`;
+                item.innerHTML = `
+                    <div class="user-rank ${isWinner ? 'top' : 'normal'}">${rank}</div>
+                    <img src="${user.profile_image}" alt="${user.fullname}" class="user-avatar" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_id}'">
+                    <div class="user-info">
+                        <div class="user-name">${user.fullname}</div>
+                        <div class="user-username">@${user.username}</div>
+                    </div>
+                    <div class="user-stats">
+                        <div class="user-referrals">${user.referrals}</div>
+                        ${isWinner && prize ? `<div class="user-prize"><a href="https://t.me/nft/${prize.name}" target="_blank">🎁 ${prize.name.split('-')[0]}</a></div>` : ''}
+                    </div>
+                `;
+                usersList.appendChild(item);
+            });
+
+            // Add divider after TOP 10
+            if (top20Users.length > 10) {
+                const items = usersList.querySelectorAll('.user-item');
+                if (items.length > 10) {
+                    const divider = document.createElement('div');
+                    divider.className = 'section-divider';
+                    divider.textContent = '📊 Keyingi 10 ta ishtirokchi';
+                    items[9].after(divider);
+                }
+            }
+        }
+
+        // Update fetchStats to store top20Users
+        const originalFetchStats = fetchStats;
+        fetchStats = async function () {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                const participantEl = document.getElementById('participantCount');
+                const prizeEl = document.getElementById('prizeCount');
+
+                if (data.participants !== undefined) {
+                    const current = parseInt(participantEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                    const target = data.participants;
+                    animateNumber(participantEl, current, target);
+                }
+
+                if (data.total_prizes !== undefined) {
+                    prizeEl.textContent = data.total_prizes;
+                }
+
+                // Store TOP 20 users
+                if (data.top_20) {
+                    top20Users = data.top_20;
+                }
+            } catch (error) {
+                console.log('Stats fetch error:', error);
+            }
+        };
+
+
+        // Initialize prizes on load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTopPrizes();
+            renderRandomPrizes();
+        });
+
+        // Fallback if DOMContentLoaded already fired
+        if (document.readyState !== 'loading') {
+            renderTopPrizes();
+            renderRandomPrizes();
+        }
+    </script>
+</body>
+
+</html>
