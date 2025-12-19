@@ -80,19 +80,11 @@ async def download_all():
     """Download all NFT animations"""
     all_gifts = TOP_10_GIFTS + RANDOM_20_GIFTS
     
-    # Remove duplicates while preserving order
-    seen = set()
-    unique_gifts = []
-    for gift in all_gifts:
-        base = gift.rsplit('-', 1)[0]
-        if base not in seen:
-            seen.add(base)
-            unique_gifts.append(gift)
-    
-    print(f"Downloading {len(unique_gifts)} unique NFT animations...")
+    # Download ALL gifts - each one is unique!
+    print(f"Downloading {len(all_gifts)} NFT animations...")
     
     async with aiohttp.ClientSession() as session:
-        tasks = [download_animation(session, gift) for gift in unique_gifts]
+        tasks = [download_animation(session, gift) for gift in all_gifts]
         results = await asyncio.gather(*tasks)
     
     successful = [r for r in results if r.get("success")]
