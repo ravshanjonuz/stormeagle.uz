@@ -1408,11 +1408,28 @@
         let top20Users = [];
 
         // Open Users Modal
-        function openUsersModal() {
+        async function openUsersModal() {
             const modal = document.getElementById('usersModal');
             modal.classList.add('active');
-            renderUsersModal();
             document.body.style.overflow = 'hidden';
+
+            // If data is empty, fetch it now
+            if (top20Users.length === 0) {
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '<p style="text-align: center; color: #64748b;">Ma\'lumotlar yuklanmoqda...</p>';
+
+                try {
+                    const response = await fetch('/api/stats');
+                    const data = await response.json();
+                    if (data.top_20 && data.top_20.length > 0) {
+                        top20Users = data.top_20;
+                    }
+                } catch (error) {
+                    console.log('Error fetching users:', error);
+                }
+            }
+
+            renderUsersModal();
         }
 
         function closeUsersModal() {
@@ -1449,7 +1466,7 @@
             usersList.innerHTML = '';
 
             if (top20Users.length === 0) {
-                usersList.innerHTML = '<p style="text-align: center; color: #64748b;">Ma\'lumotlar yuklanmoqda...</p>';
+                usersList.innerHTML = '<p style="text-align: center; color: #64748b;">Hozircha ishtirokchilar yo\'q. Botga qo\'shiling va birinchi bo\'ling! 🚀</p>';
                 return;
             }
 

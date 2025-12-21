@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 import os
 
 from database import async_session, User
@@ -41,26 +41,30 @@ async def get_stats():
         async with async_session() as session:
             # Total participants count
             result = await session.execute(
-                select(func.count(User.id))
+                text("SELECT COUNT(*) FROM users")
             )
             total_participants = result.scalar() or 0
             
             # TOP 20 by activated_referrals (TOP 10 = winners, 11-20 = runners-up)
             result = await session.execute(
-                select(User.user_id, User.username, User.fullname, User.activated_referrals, User.profile_image)
-                .where(User.is_activated == True)
-                .order_by(User.activated_referrals.desc())
-                .limit(20)
+                text("""
+                    SELECT user_id, username, fullname, activated_referrals, profile_image 
+                    FROM users 
+                    WHERE is_activated = true 
+                    ORDER BY activated_referrals DESC 
+                    LIMIT 20
+                """)
             )
+            users = result.fetchall()
             top_20 = [
                 {
-                    "user_id": row.user_id,
-                    "username": row.username or "Anonymous",
-                    "fullname": row.fullname or "Foydalanuvchi",
-                    "referrals": row.activated_referrals,
-                    "profile_image": row.profile_image or f"https://api.dicebear.com/7.x/avataaars/svg?seed={row.user_id}"
+                    "user_id": row[0],
+                    "username": row[1] or "Anonymous",
+                    "fullname": row[2] or "Foydalanuvchi",
+                    "referrals": row[3],
+                    "profile_image": row[4] or f"https://api.dicebear.com/7.x/avataaars/svg?seed={row[0]}"
                 }
-                for row in result.fetchall()
+                for row in users
             ]
             
             return {
@@ -72,10 +76,19 @@ async def get_stats():
                 "top_20": top_20
             }
     except Exception as e:
-        # If database is not available, return default values
+        # If there's an error, try to at least get participant count
+        try:
+            async with async_session() as session:
+                result = await session.execute(
+                    text("SELECT COUNT(*) FROM users")
+                )
+                total_participants = result.scalar() or 0
+        except:
+            total_participants = 0
+        
         return {
             "success": False,
-            "participants": 500,
+            "participants": total_participants,
             "top_prizes": 10,
             "random_prizes": 20,
             "total_prizes": 30,
