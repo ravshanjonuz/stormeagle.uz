@@ -40,14 +40,13 @@ async def get_stats():
     try:
         async with async_session() as session:
             # RANDOM uchun yaroqli ishtirokchilar
-            # Shartlar: phone mavjud, is_uzb=true, ref_id mavjud, is_activated=true, is_ban=false, is_blocked=false
+            # Shartlar: phone mavjud, is_uzb=true, ref orqali kelganlar is_activated bo'lishi kerak, ban va block bo'lmagan
             result = await session.execute(
                 text("""
                     SELECT COUNT(*) FROM users 
                     WHERE phone IS NOT NULL 
                       AND is_uzb = true 
-                      AND ref_id IS NOT NULL 
-                      AND is_activated = true 
+                      AND (ref_id IS NULL OR is_activated = true)
                       AND is_ban = false 
                       AND is_blocked = false
                 """)
