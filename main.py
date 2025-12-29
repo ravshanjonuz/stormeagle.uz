@@ -50,8 +50,10 @@ async def get_stats():
                 text("""
                     SELECT user_id, username, fullname, activated_referrals, profile_image 
                     FROM users 
-                    WHERE is_activated = true 
-                    ORDER BY activated_referrals DESC 
+                    WHERE activated_referrals > 0 
+                      AND is_ban = false 
+                      AND is_uzb = true 
+                    ORDER BY activated_referrals DESC
                     LIMIT 20
                 """)
             )
