@@ -39,6 +39,7 @@ async def get_stats():
     """Get real-time statistics from database"""
     try:
         async with async_session() as session:
+            result_all = await session.execute(text("SELECT COUNT(*) FROM users"))
             # RANDOM uchun yaroqli ishtirokchilar
             # Shartlar: phone mavjud, is_uzb=true, ref orqali kelganlar is_activated bo'lishi kerak, ban va block bo'lmagan
             result = await session.execute(
@@ -49,8 +50,10 @@ async def get_stats():
                       AND (ref_id IS NULL OR is_activated = true)
                       AND is_ban = false 
                       AND is_blocked = false
+                      AND created_at < '2025-12-31 00:00:00'
                 """)
             )
+            total_users = result_all.scalar() or 0
             total_participants = result.scalar() or 0
             
             # TOP 20 by activated_referrals (TOP 10 = winners, 11-20 = runners-up)
@@ -61,6 +64,7 @@ async def get_stats():
                     WHERE activated_referrals > 0 
                       AND is_ban = false 
                       AND is_uzb = true 
+                      AND created_at < '2025-12-31 00:00:00'
                     ORDER BY activated_referrals DESC
                     LIMIT 20
                 """)
@@ -80,6 +84,7 @@ async def get_stats():
             return {
                 "success": True,
                 "participants": total_participants,
+                "users": total_users,
                 "top_prizes": 10,
                 "random_prizes": 20,
                 "total_prizes": 30,
@@ -99,6 +104,7 @@ async def get_stats():
         return {
             "success": False,
             "participants": total_participants,
+            "users": total_participants,
             "top_prizes": 10,
             "random_prizes": 20,
             "total_prizes": 30,
